@@ -351,7 +351,7 @@ async function initScene(
       img.onerror = () => {
         try {
           const code = qrcode(0, "M");
-          code.addData("https://avistrack.fr/avis/demo-avistrack");
+          code.addData("https://avis-pied.vercel.app/avis/demo-avistrack");
           code.make();
           const count = code.getModuleCount();
           const cell = qrSize / count;
