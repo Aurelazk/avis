@@ -15,6 +15,14 @@ const inputClass =
 
 const initialState: PublicReviewState = { status: "idle" };
 
+/**
+ * Soumission de démonstration (QR de la page d'accueil) : aucun avis n'est
+ * écrit en base, mais le parcours reste identique pour le visiteur.
+ */
+async function submitDemo(): Promise<PublicReviewState> {
+  return { status: "submitted" };
+}
+
 const RATING_VALUES = [1, 2, 3, 4, 5] as const;
 const RATING_LABELS = [
   "",
@@ -71,19 +79,22 @@ export function ReviewForm({
   publicId,
   config,
   maxDate,
+  demo = false,
 }: {
   companyName: string;
   publicId: string;
   config: ReviewFormConfig;
   maxDate: string;
+  /** Mode vitrine : le formulaire ne persiste rien. */
+  demo?: boolean;
 }) {
   const [mode, setMode] = useState<"welcome" | "review" | "remark">("welcome");
   const [reviewState, reviewAction, reviewPending] = useActionState(
-    submitReview,
+    demo ? submitDemo : submitReview,
     initialState,
   );
   const [remarkState, remarkAction, remarkPending] = useActionState(
-    submitRemark,
+    demo ? submitDemo : submitRemark,
     initialState,
   );
   const [rating, setRating] = useState(0);
