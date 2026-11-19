@@ -30,9 +30,8 @@ export const getAccountState = cache(async (): Promise<AccountState> => {
   let user: AuthUser | null = null;
   try {
     user = await getAuthUser();
-  } catch {
-    // La session Supabase est indisponible (réseau, cookie invalide) :
-    // on traite comme un visiteur non connecté plutôt que de planter.
+  } catch (e) {
+    console.error("[onboarding-diag] getAuthUser failed:", e instanceof Error ? e.message : String(e));
     return { kind: "anonymous" };
   }
   if (!user) return { kind: "anonymous" };
@@ -43,9 +42,8 @@ export const getAccountState = cache(async (): Promise<AccountState> => {
   let company: Company | null = null;
   try {
     company = await findCompanyByUserId(user.id);
-  } catch {
-    // Lecture `companies` indisponible (table manquante, RLS, connexion) :
-    // on traite comme si aucune fiche n'existait, plutôt que de planter la page.
+  } catch (e) {
+    console.error("[onboarding-diag] findCompanyByUserId failed:", e instanceof Error ? e.message : String(e));
     company = null;
   }
   if (company) return { kind: "company", company };
@@ -55,8 +53,8 @@ export const getAccountState = cache(async (): Promise<AccountState> => {
     if (includingDeleted?.deleted) {
       return { kind: "deleted", company: includingDeleted.company };
     }
-  } catch {
-    // Même traitement : échec de lecture, on ignore et on passe à onboarding.
+  } catch (e) {
+    console.error("[onboarding-diag] findCompanyByUserIdIncludingDeleted failed:", e instanceof Error ? e.message : String(e));
   }
 
   return { kind: "onboarding" };

@@ -88,7 +88,8 @@ export async function completeOnboarding(
 
     await updateCompanyProfile(company.id, { ...parsed.data, logoUrl });
     return { status: "saved", message: "Profil enregistré. Choisissez votre forfait." };
-  } catch {
+  } catch (e) {
+    console.error("[onboarding-diag] completeOnboarding failed:", e instanceof Error ? e.message : String(e));
     return {
       status: "error",
       message: "Une erreur est survenue lors de l'enregistrement. Réessayez.",
