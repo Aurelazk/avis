@@ -41,9 +41,10 @@ export async function completeOnboarding(
   _previous: OnboardingState,
   formData: FormData,
 ): Promise<OnboardingState> {
+  const company = await getCurrentCompany();
+  if (!company) redirect(COMPANY_LOGIN_PATH);
+
   try {
-    const company = await getCurrentCompany();
-    if (!company) redirect(COMPANY_LOGIN_PATH);
     if (company.status !== "ACTIVE") {
       return { status: "error", message: "Votre compte n'est pas actif." };
     }
