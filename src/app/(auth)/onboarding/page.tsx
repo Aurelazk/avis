@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { DeletedAccountScreen } from "@/components/auth/deleted-account-screen";
 import {
   ADMIN_HOME_PATH,
@@ -24,35 +25,38 @@ export const metadata: Metadata = { title: "Compléter mon compte" };
  * rechargement.
  */
 export default async function OnboardingPage() {
+  // Rendu à la demande : empêche l'erreur "Date.now() during prerendering"
+  // levée par supabase.auth.getUser() en interne.
+  await connection();
+
+  let state;
   try {
-    const state = await getAccountState();
-
-    if (state.kind === "company") {
-      if (
-        state.company.status === "ACTIVE" &&
-        (await needsCompanyOnboarding(state.company))
-      ) {
-        return (
-          <OnboardingForm
-            email={state.company.email}
-            phone={state.company.phone}
-            name={state.company.name}
-            initialStep={
-              needsProfileCompletion(state.company) ? "profile" : "plan"
-            }
-          />
-        );
-      }
-      redirect(COMPANY_HOME_PATH);
-    }
-
-    if (state.kind === "admin") redirect(ADMIN_HOME_PATH);
-    if (state.kind === "deleted") return <DeletedAccountScreen />;
-
-    redirect("/?auth=signup");
+    state = await getAccountState();
   } catch {
-    // Toute erreur inattendue sur la page d'onboarding renvoie vers la
-    // connexion au lieu d'afficher le boundary d'erreur Next.js.
     redirect("/?auth=login");
   }
+
+  if (state.kind === "company") {
+    if (
+      state.company.status === "ACTIVE" &&
+      (await needsCompanyOnboarding(state.company))
+    ) {
+      return (
+        <OnboardingForm
+          email={state.company.email}
+          phone={state.company.phone}
+          name={state.company.name}
+          initialStep={
+            needsProfileCompletion(state.company) ? "profile" : "plan"
+          }
+        />
+      );
+    }
+    redirect(COMPANY_HOME_PATH);
+  }
+
+  if (state.kind === "admin") redirect(ADMIN_HOME_PATH);
+  if (state.kind === "deleted") return <DeletedAccountScreen />;
+
+  redirect("/?auth=signup");
 }
