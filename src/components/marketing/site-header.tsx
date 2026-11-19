@@ -2,8 +2,9 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { buttonClass } from "@/components/ui/button";
+import { XIcon, ArrowDownIcon } from "@/components/ui/icons";
 
 import { useAuthModal } from "@/components/auth/auth-modal-context";
 
@@ -14,10 +15,10 @@ const NAV = [
   { href: "#contact", label: "Contact" },
 ] as const;
 
-/** Barre de navigation : se masque au défilement vers le bas, revient vers le haut. */
 export function SiteHeader() {
   const headerRef = useRef<HTMLElement | null>(null);
   const progressRef = useRef<HTMLDivElement | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { openLogin, openSignup } = useAuthModal();
 
   useEffect(() => {
@@ -72,7 +73,20 @@ export function SiteHeader() {
             <span>AvisTrack</span>
           </Link>
 
-          <nav aria-label="Navigation principale" className="site-nav">
+          <button
+            type="button"
+            onClick={() => setIsMenuOpen((prev) => !prev)}
+            aria-label={isMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
+            aria-expanded={isMenuOpen}
+            className="md:hidden p-2 text-black hover:bg-gray-50 rounded-full transition-colors"
+          >
+            {isMenuOpen ? <XIcon className="w-5 h-5" /> : <ArrowDownIcon className="w-5 h-5" />}
+          </button>
+
+          <nav
+            aria-label="Navigation principale"
+            className={`site-nav ${isMenuOpen ? "" : "hidden"} md:flex`}
+          >
             {NAV.map((item) => (
               <a key={item.href} href={item.href}>
                 {item.label}
@@ -80,19 +94,67 @@ export function SiteHeader() {
             ))}
             <button
               type="button"
-              onClick={openLogin}
-              className="cursor-pointer text-sm font-semibold transition-colors hover:text-accent"
+              onClick={() => {
+                setIsMenuOpen(false);
+                openLogin();
+              }}
+              className="cursor-pointer text-sm font-semibold transition-colors hover:text-accent py-2 px-4 min-h-[44px]"
             >
               Connexion
             </button>
             <button
               type="button"
-              onClick={openSignup}
+              onClick={() => {
+                setIsMenuOpen(false);
+                openSignup();
+              }}
               className={buttonClass("primary")}
             >
               Créer mon compte
             </button>
           </nav>
+
+          {isMenuOpen && (
+            <div
+              className="md:hidden absolute top-full left-0 right-0 border-t border-black/10 bg-white py-4 px-6 z-50"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <nav className="space-y-3">
+                {NAV.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="block text-sm font-medium text-black hover:text-accent py-2"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </nav>
+              <div className="mt-4 space-y-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    openLogin();
+                  }}
+                  className="w-full cursor-pointer text-sm font-semibold text-black transition-colors hover:text-accent py-3 px-4 border border-black/10 rounded-xl text-left"
+                >
+                  Connexion
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    openSignup();
+                  }}
+                  className={buttonClass("primary") + " w-full"}
+                >
+                  Créer mon compte
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </header>
     </>

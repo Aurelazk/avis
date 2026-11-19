@@ -16,7 +16,7 @@ const LEGAL_LINKS = [
 ] as const;
 
 const LINK_CLASS =
-  "inline-flex min-h-9 items-center text-sm text-white/65 underline-offset-4 transition-colors hover:text-white hover:underline";
+  "inline-flex min-h-11 items-center text-sm text-white/65 underline-offset-4 transition-colors hover:text-white hover:underline";
 
 /** Calculée au chargement du module : valeur stable pour le prérendu. */
 const YEAR = new Date().getFullYear();
@@ -27,7 +27,7 @@ export function SiteFooter() {
     <footer id="contact" className="relative overflow-hidden bg-black text-white">
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-40 right-0 size-[28rem] rounded-full bg-accent/10 blur-3xl"
+        className="pointer-events-none absolute -top-40 right-0 size-[28rem] rounded-full bg-accent/10 blur-3xl hidden sm:block"
       />
 
       <div className="relative mx-auto w-full max-w-7xl px-6 pt-16 pb-8 lg:px-16 lg:pt-20">
@@ -60,7 +60,7 @@ export function SiteFooter() {
             </p>
             <a
               href="mailto:contact@avistrack.com"
-              className="inline-flex items-center gap-2 text-sm font-medium text-white underline-offset-4 hover:text-white/80 hover:underline"
+              className="inline-flex min-h-11 items-center gap-2 text-sm font-medium text-white underline-offset-4 transition-colors hover:text-white/80 hover:underline"
             >
               <svg
                 viewBox="0 0 24 24"

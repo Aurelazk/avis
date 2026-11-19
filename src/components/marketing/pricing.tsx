@@ -123,7 +123,7 @@ export function Pricing() {
               type="button"
               aria-pressed={period === "monthly"}
               onClick={() => setPeriod("monthly")}
-              className={`min-h-10 cursor-pointer rounded-full px-5 text-sm font-semibold transition-colors ${
+              className={`min-h-11 cursor-pointer rounded-full px-5 text-sm font-semibold transition-colors ${
                 period === "monthly"
                   ? "bg-black text-white"
                   : "text-gray-600 hover:text-black"
@@ -135,7 +135,7 @@ export function Pricing() {
               type="button"
               aria-pressed={period === "annual"}
               onClick={() => setPeriod("annual")}
-              className={`min-h-10 cursor-pointer rounded-full px-5 text-sm font-semibold transition-colors ${
+              className={`min-h-11 cursor-pointer rounded-full px-5 text-sm font-semibold transition-colors ${
                 period === "annual"
                   ? "bg-red text-white"
                   : "text-gray-600 hover:text-black"
