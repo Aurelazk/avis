@@ -24,29 +24,35 @@ export const metadata: Metadata = { title: "Compléter mon compte" };
  * rechargement.
  */
 export default async function OnboardingPage() {
-  const state = await getAccountState();
+  try {
+    const state = await getAccountState();
 
-  if (state.kind === "company") {
-    if (
-      state.company.status === "ACTIVE" &&
-      (await needsCompanyOnboarding(state.company))
-    ) {
-      return (
-        <OnboardingForm
-          email={state.company.email}
-          phone={state.company.phone}
-          name={state.company.name}
-          initialStep={
-            needsProfileCompletion(state.company) ? "profile" : "plan"
-          }
-        />
-      );
+    if (state.kind === "company") {
+      if (
+        state.company.status === "ACTIVE" &&
+        (await needsCompanyOnboarding(state.company))
+      ) {
+        return (
+          <OnboardingForm
+            email={state.company.email}
+            phone={state.company.phone}
+            name={state.company.name}
+            initialStep={
+              needsProfileCompletion(state.company) ? "profile" : "plan"
+            }
+          />
+        );
+      }
+      redirect(COMPANY_HOME_PATH);
     }
-    redirect(COMPANY_HOME_PATH);
+
+    if (state.kind === "admin") redirect(ADMIN_HOME_PATH);
+    if (state.kind === "deleted") return <DeletedAccountScreen />;
+
+    redirect("/?auth=signup");
+  } catch {
+    // Toute erreur inattendue sur la page d'onboarding renvoie vers la
+    // connexion au lieu d'afficher le boundary d'erreur Next.js.
+    redirect("/?auth=login");
   }
-
-  if (state.kind === "admin") redirect(ADMIN_HOME_PATH);
-  if (state.kind === "deleted") return <DeletedAccountScreen />;
-
-  redirect("/?auth=signup");
 }

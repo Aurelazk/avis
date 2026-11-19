@@ -33,12 +33,23 @@ export const getAccountState = cache(async (): Promise<AccountState> => {
   const admin = await findAdminById(user.id);
   if (admin) return { kind: "admin", admin };
 
-  const company = await findCompanyByUserId(user.id);
+  let company: Company | null = null;
+  try {
+    company = await findCompanyByUserId(user.id);
+  } catch {
+    // Lecture `companies` indisponible (table manquante, RLS, connexion) :
+    // on traite comme si aucune fiche n'existait, plutôt que de planter la page.
+    company = null;
+  }
   if (company) return { kind: "company", company };
 
-  const includingDeleted = await findCompanyByUserIdIncludingDeleted(user.id);
-  if (includingDeleted?.deleted) {
-    return { kind: "deleted", company: includingDeleted.company };
+  try {
+    const includingDeleted = await findCompanyByUserIdIncludingDeleted(user.id);
+    if (includingDeleted?.deleted) {
+      return { kind: "deleted", company: includingDeleted.company };
+    }
+  } catch {
+    // Même traitement : échec de lecture, on ignore et on passe à onboarding.
   }
 
   return { kind: "onboarding" };
