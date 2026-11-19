@@ -76,6 +76,13 @@ export async function needsCompanyOnboarding(
   company: Company,
 ): Promise<boolean> {
   if (needsProfileCompletion(company)) return true;
-  const subscription = await getCompanySubscription(company.id);
-  return subscription === null;
+  try {
+    const subscription = await getCompanySubscription(company.id);
+    return subscription === null;
+  } catch {
+    // La table d'abonnement peut ne pas exister encore (migration 006) ou
+    // être temporairement indisponible : on considère qu'aucun abonnement
+    // n'est présent, donc l'onboarding est requis, au lieu de planter.
+    return true;
+  }
 }
