@@ -6,7 +6,7 @@ import {
   findCompanyByUserId,
   findCompanyByUserIdIncludingDeleted,
 } from "@/server/repositories/company-repository";
-import { getAuthUser } from "./session";
+import { getAuthUser, type AuthUser } from "./session";
 
 /**
  * État du compte pour la requête courante.
@@ -27,7 +27,14 @@ export type AccountState =
   | { kind: "deleted"; company: Company };
 
 export const getAccountState = cache(async (): Promise<AccountState> => {
-  const user = await getAuthUser();
+  let user: AuthUser | null = null;
+  try {
+    user = await getAuthUser();
+  } catch {
+    // La session Supabase est indisponible (réseau, cookie invalide) :
+    // on traite comme un visiteur non connecté plutôt que de planter.
+    return { kind: "anonymous" };
+  }
   if (!user) return { kind: "anonymous" };
 
   const admin = await findAdminById(user.id);

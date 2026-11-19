@@ -44,16 +44,27 @@ function guessCompanyName(user: OnboardingUser): string {
 export async function ensureCompanyForUser(
   user: OnboardingUser,
 ): Promise<Company | null> {
-  const existing = await findCompanyByUserId(user.id);
+  let existing: Company | null = null;
+  try {
+    existing = await findCompanyByUserId(user.id);
+  } catch {
+    // Lecture `companies` indisponible : on tente quand même la création.
+    existing = null;
+  }
   if (existing) return existing;
 
-  const result = await createCompany({
-    userId: user.id,
-    name: guessCompanyName(user),
-    email: user.email ?? `utilisateur-${user.id.slice(0, 8)}@avistrack.local`,
-    phone: "",
-  });
-  return result.ok ? result.company : null;
+  try {
+    const result = await createCompany({
+      userId: user.id,
+      name: guessCompanyName(user),
+      email: user.email ?? `utilisateur-${user.id.slice(0, 8)}@avistrack.local`,
+      phone: "",
+    });
+    return result.ok ? result.company : null;
+  } catch {
+    // Création impossible (e-mail déjà rattaché, DB indisponible…) : null.
+    return null;
+  }
 }
 
 /**
