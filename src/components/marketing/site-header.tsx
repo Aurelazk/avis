@@ -85,7 +85,7 @@ export function SiteHeader() {
 
           <nav
             aria-label="Navigation principale"
-            className={`site-nav ${isMenuOpen ? "" : "hidden"} md:flex`}
+            className={`site-nav ${isMenuOpen ? "flex-col" : "hidden"} md:flex md:flex-row`}
           >
             {NAV.map((item) => (
               <a key={item.href} href={item.href}>
